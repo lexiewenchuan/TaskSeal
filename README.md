@@ -4,191 +4,233 @@
 
 ### A task-first control plane for trustworthy agent work
 
-**Authorize · Execute · Prove · Improve**
+**Authorize · Execute · Prove · Accept**
 
-[![Status: Design Preview](https://img.shields.io/badge/status-design_preview-f59e0b)](./ROADMAP.md)
-[![Validate](https://github.com/lexiewenchuan/TaskSeal/actions/workflows/validate.yml/badge.svg)](https://github.com/lexiewenchuan/TaskSeal/actions/workflows/validate.yml)
+[![CI](https://github.com/lexiewenchuan/TaskSeal/actions/workflows/validate.yml/badge.svg)](https://github.com/lexiewenchuan/TaskSeal/actions/workflows/validate.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-3776ab.svg)](./pyproject.toml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-2563eb.svg)](./LICENSE)
 [![Docs: 中文](https://img.shields.io/badge/docs-中文-0f766e.svg)](./README.zh-CN.md)
-[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-22c55e.svg)](./CONTRIBUTING.md)
 
 **An agent saying “done” does not mean the task is done.**
 
-TaskSeal turns a goal into an authorized work item, coordinates agents and
-tools, collects evidence, and closes the task only after independent acceptance.
+TaskSeal gives agent work durable state, limited authority, controlled side
+effects, revision-bound evidence, and independent acceptance.
 
-[Why TaskSeal](#why-taskseal) · [Architecture](#architecture) ·
-[Explore the design](#explore-the-design) · [Roadmap](./ROADMAP.md) ·
-[Contributing](./CONTRIBUTING.md)
+[Quick start](#quick-start) · [How it works](#how-it-works) ·
+[Python API](#python-api) · [Architecture](./docs/architecture.md) ·
+[Roadmap](./ROADMAP.md)
 
 </div>
 
-![TaskSeal overview](./outputs/agent-work-os-interview-overview-v1.1.png)
+## Quick start
 
-> [!IMPORTANT]
-> TaskSeal is currently a **design preview with executable contracts**, not a
-> production-ready runtime. The repository intentionally separates what is
-> designed, specified, and implemented.
+TaskSeal has no third-party runtime dependencies.
+
+```bash
+git clone https://github.com/lexiewenchuan/TaskSeal.git
+cd TaskSeal
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+```
+
+Run a complete local task:
+
+```bash
+taskseal demo
+```
+
+The demo:
+
+1. creates a durable Work Item;
+2. plans a file change;
+3. grants one agent read/write access to one local resource;
+4. writes only through the checked resource gateway;
+5. captures a SHA-256 revision as evidence;
+6. uses a different verifier to accept the task;
+7. persists every checkpoint and event to SQLite.
+
+Inspect the result:
+
+```bash
+taskseal list
+taskseal show <work-item-id>
+taskseal events <work-item-id>
+```
+
+The final state is:
+
+```json
+{
+  "status": "accepted",
+  "acceptance": [
+    {
+      "id": "result-created",
+      "status": "passed",
+      "verified_by": "demo-verifier"
+    }
+  ]
+}
+```
 
 ## Why TaskSeal?
 
-Most agent frameworks are excellent at helping an agent reason, call tools, and
-coordinate a run. Real work introduces a second problem:
+Agent runtimes solve how a model reasons and calls tools. Real work also needs
+to answer:
 
-- Who authorized the action?
-- Which resources may the agent change?
-- What survives when a model, session, or runtime changes?
-- What evidence proves the external result is correct?
-- How can successful experience become a reusable capability without unsafe
-  self-modification?
+- Who authorized this action?
+- Which exact resource may the executor change?
+- Can a child agent gain more authority than its parent?
+- What survives when the process or conversation ends?
+- What evidence proves that the external result is correct?
+- Can the executor approve its own high-impact work?
 
-TaskSeal treats the **work item**, rather than the conversation or agent loop, as
-the system's top-level object.
+TaskSeal makes the **Work Item**, not the conversation, the top-level object.
 
-```text
-Goal
-  → Work item
-  → Context and plan
-  → Risk check and scoped authorization
-  → Agent or deterministic executor
-  → Artifacts and evidence
-  → Independent acceptance
-  → Verified experience
-  → Evaluated capability
-```
-
-## The core idea
-
-TaskSeal combines four closed loops:
-
-| Loop | Question it answers |
-|---|---|
-| **Decide** | What should be done, reused, changed, or created? |
-| **Act** | Who may perform which action on which resource? |
-| **Prove** | What evidence demonstrates that the goal was achieved? |
-| **Improve** | Which verified experience is safe to promote into a capability? |
-
-The first three loops make the current task trustworthy. The fourth helps future
-tasks improve without bypassing authorization or evaluation.
-
-## Architecture
+## How it works
 
 ```mermaid
 flowchart LR
-    A["Goal"] --> B["Work item"]
-    B --> C["Plan and risk"]
+    A["Goal"] --> B["Durable Work Item"]
+    B --> C["Plan"]
     C --> D["Scoped authorization"]
-    D --> E["Agent runtime or program"]
+    D --> E["Agent or program"]
     E --> F["Resource gateway"]
-    F --> G["External resources"]
-    G --> H["Artifacts and evidence"]
-    H --> I{"Independent acceptance"}
-    I -->|Repair| C
-    I -->|Accepted| J["Verified result"]
-    J --> K["Evaluated learning"]
-    K --> C
+    F --> G["Artifact + evidence"]
+    G --> H{"Independent acceptance"}
+    H -->|Repair| C
+    H -->|Pass| I["Accepted"]
 ```
 
-The runtime is replaceable. Codex, LangGraph, an Agents SDK, a custom loop, or a
-deterministic program can all act as executors. TaskSeal owns the durable work
-state, authorization boundary, evidence model, acceptance decision, and
-controlled learning path.
+The agent runtime is replaceable. TaskSeal owns the boundaries around it.
 
-For the complete design, see:
+## What is implemented
 
-- [Framework design](./docs/general-agent-framework-design.md)
-- [Interview-friendly project narrative](./docs/interview-project-agent-work-os.md)
-- [Detailed architecture diagram](./outputs/agent-work-os-interview-architecture-v1.0.svg)
-- [Six-plane design diagram](./outputs/general-agent-framework-architecture-v0.3.svg)
+- A legal Work Item state machine
+- Resource- and action-scoped authorization
+- Non-expanding child delegation
+- Authorization expiry checks
+- A local filesystem side-effect gateway
+- Workspace and resource path-escape protection
+- Artifact and SHA-256 evidence generation
+- Evidence-to-criterion traceability
+- Independent verifier enforcement
+- SQLite snapshots with optimistic revisions
+- An append-only task event trail
+- A zero-dependency CLI demo
+- Unit and end-to-end tests
 
-## Explore the design
+TaskSeal is an early alpha. The implemented surface is deliberately small and
+tested; planned distributed and multi-runtime capabilities are listed in the
+[roadmap](./ROADMAP.md).
 
-The fastest way to understand TaskSeal is to inspect one work item:
+## Python API
 
-1. Open the [example software-change work item](./examples/software-change/work-item.json).
-2. Compare it with the [Work Item JSON Schema](./spec/work-item.schema.json).
-3. Follow the acceptance criteria to the attached evidence records.
-4. Read the [framework design](./docs/general-agent-framework-design.md) for the
-   complete model.
+```python
+from pathlib import Path
 
-Validate the example with any JSON Schema 2020-12 compatible validator:
+from taskseal import (
+    AcceptanceCriterion,
+    AuthorizationRequest,
+    LocalFileGateway,
+    PolicyEngine,
+    Resource,
+    SQLiteWorkItemStore,
+    TaskSealEngine,
+    WorkItem,
+)
+from taskseal.models import PlanStep
 
-```bash
-check-jsonschema \
-  --schemafile spec/work-item.schema.json \
-  examples/software-change/work-item.json
+store = SQLiteWorkItemStore(Path(".taskseal/taskseal.db"))
+policy = PolicyEngine()
+engine = TaskSealEngine(store, policy=policy)
+
+work = WorkItem.create(
+    goal="Create a verified result file.",
+    requested_by="user",
+    resources=[
+        Resource(
+            id="workspace",
+            kind="local-directory",
+            locator=".",
+            allowed_actions=["read", "write"],
+        )
+    ],
+    acceptance=[
+        AcceptanceCriterion(
+            id="result-exists",
+            statement="The result has revision-bound evidence.",
+            required_evidence_kinds=["file-sha256"],
+        )
+    ],
+)
+
+engine.create(work)
+engine.set_plan(work, [PlanStep(id="write", summary="Write result")])
+engine.request_authorization(work)
+grant = engine.grant(
+    work,
+    AuthorizationRequest(
+        subject="agent",
+        resource_ids=["workspace"],
+        actions=["write"],
+    ),
+)
+engine.start(work, executor="agent")
+
+artifact, evidence = LocalFileGateway(Path("."), policy).write_text(
+    work,
+    authorization_id=grant.id,
+    subject="agent",
+    resource_id="workspace",
+    relative_path="result.txt",
+    content="done\n",
+    supports=["result-exists"],
+)
+engine.attach_result(work, artifact=artifact, evidence=evidence)
+engine.begin_verification(work)
+engine.accept(work, verifier="independent-verifier")
 ```
 
-No model provider or agent runtime is required to explore the contract.
+## Core invariants
 
-## What makes it different?
+1. An executor cannot grant itself more authority.
+2. Delegation cannot expand resources, actions, or expiry.
+3. Task state does not live only in chat history.
+4. Side effects pass through a checked resource gateway.
+5. A successful execution is not task acceptance.
+6. Artifacts do not automatically count as evidence.
+7. Evidence is bound to a resource revision and acceptance criterion.
+8. An executor cannot independently accept its own work.
 
-TaskSeal is designed to sit above agent runtimes, not replace them.
-
-| Concern | Agent runtime | TaskSeal |
-|---|---:|---:|
-| Model and tool loop | Primary | Pluggable |
-| Durable task state | Optional | Core |
-| Resource-scoped authorization | Runtime-specific | Core |
-| Side-effect gateway | Tool-specific | Unified boundary |
-| Evidence-to-criterion traceability | Usually external | Core |
-| Independent acceptance | Optional | Required |
-| Capability promotion and rollback | Usually external | Controlled lifecycle |
-
-TaskSeal is useful when an agent moves beyond answering questions and starts
-changing code, documents, data, tickets, infrastructure, or other shared
-resources.
-
-## Design invariants
-
-1. An agent cannot grant itself more authority.
-2. Task state cannot live only in chat history.
-3. Real side effects pass through a controlled resource boundary.
-4. Execution success is not task completion.
-5. An artifact does not automatically count as evidence.
-6. Deterministic checks are preferred where they are sufficient.
-7. High-risk work requires independent acceptance.
-8. Retrieved memory is not automatically a fact.
-9. One successful run does not automatically become a capability.
-10. Self-improvement must be evaluated, reversible, and explicitly promoted.
-
-## Repository map
+## Project structure
 
 ```text
 TaskSeal/
-├── docs/          # Detailed architecture and design reasoning
-├── examples/      # Sanitized work-item examples
-├── outputs/       # Architecture diagrams in SVG and PNG
-├── spec/          # Runtime-neutral contracts
-└── .github/       # Contribution and issue workflows
+├── src/taskseal/
+│   ├── models.py       # Work Item and trust objects
+│   ├── state.py        # legal lifecycle transitions
+│   ├── policy.py       # scoped authorization and delegation
+│   ├── gateway.py      # checked filesystem side effects
+│   ├── acceptance.py   # evidence-backed acceptance
+│   ├── store.py        # SQLite snapshots and events
+│   ├── engine.py       # lifecycle coordinator
+│   └── cli.py          # runnable command line
+├── tests/              # unit and end-to-end tests
+├── spec/               # runtime-neutral Work Item schema
+├── examples/           # sanitized contract examples
+└── docs/               # technical architecture
 ```
 
-## Project status
+## Development
 
-TaskSeal is at **v0.1 design preview**.
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+PYTHONPATH=src python -m taskseal --help
+```
 
-Available now:
-
-- a runtime-neutral architecture;
-- a task-first ontology;
-- a Work Item contract and example;
-- authorization, evidence, acceptance, and growth boundaries;
-- diagrams and interview-ready explanations.
-
-Next milestones include a reference state machine, policy evaluator, local
-resource gateway, evidence verifier, and one end-to-end software-change demo.
-See the [roadmap](./ROADMAP.md).
-
-## Contributing
-
-TaskSeal welcomes design critiques, use cases, contract improvements, reference
-adapters, and evaluation ideas. Start with
-[CONTRIBUTING.md](./CONTRIBUTING.md), or open a design proposal using the issue
-template.
-
-Please read the [Code of Conduct](./CODE_OF_CONDUCT.md) and
-[Security Policy](./SECURITY.md) before contributing.
+See [CONTRIBUTING.md](./CONTRIBUTING.md) before submitting a change.
 
 ## License
 
-Licensed under the [Apache License 2.0](./LICENSE).
+Apache License 2.0. See [LICENSE](./LICENSE).

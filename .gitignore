@@ -25,13 +25,15 @@ repositories/
 review-notes/
 scripts/
 templates/
-tests/
+tests/test_check_harness.py
 
-# Publish only the TaskSeal diagrams selected below.
-outputs/*
-!outputs/agent-work-os-interview-overview-v1.1.png
-!outputs/agent-work-os-interview-overview-v1.1.svg
-!outputs/agent-work-os-interview-architecture-v1.0.png
-!outputs/agent-work-os-interview-architecture-v1.0.svg
-!outputs/general-agent-framework-architecture-v0.3.png
-!outputs/general-agent-framework-architecture-v0.3.svg
+# Python build and test artifacts
+.venv/
+dist/
+build/
+*.egg-info/
+.coverage
+.pytest_cache/
+
+# Local design exports are not part of the public codebase.
+outputs/

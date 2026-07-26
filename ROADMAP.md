@@ -1,59 +1,61 @@
 # TaskSeal Roadmap
 
-TaskSeal follows a design-first path: stabilize the boundaries that protect
-real work, then build the smallest reference runtime that proves them.
+TaskSeal grows by proving one trustworthy boundary at a time.
 
-## v0.1 — Design preview
+## v0.1 — Local reference kernel
 
-- [x] Task-first architecture
-- [x] Work Item ontology and JSON Schema
-- [x] Authorization, evidence, acceptance, and growth boundaries
-- [x] Architecture diagrams and design narrative
-- [x] Public contribution and security policies
+- [x] Durable Work Item model
+- [x] Legal lifecycle state machine
+- [x] Resource- and action-scoped authorization
+- [x] Non-expanding delegation
+- [x] Local filesystem resource gateway
+- [x] Path-escape protection
+- [x] Revision-bound artifact and evidence records
+- [x] Independent evidence acceptance
+- [x] SQLite snapshots, optimistic revisions and event trail
+- [x] CLI demo and end-to-end tests
 
-## v0.2 — Local reference kernel
+## v0.2 — Runtime adapter contract
 
-- [ ] Event-backed Work Item state machine
-- [ ] Policy evaluator for subject, resource, action, condition, and expiry
-- [ ] Local filesystem resource gateway
-- [ ] Evidence records bound to acceptance criteria and resource revisions
-- [ ] Deterministic acceptance checks
-- [ ] Command-line task inspection and replay
+- [ ] Define a runtime-neutral executor protocol
+- [ ] Add one production-quality agent runtime adapter
+- [ ] Add executor leases and cancellation
+- [ ] Capture structured tool-call observations
+- [ ] Add resumable execution checkpoints
+- [ ] Publish adapter compatibility tests
 
-## v0.3 — One trustworthy workflow
+## v0.3 — More resource gateways
 
-- [ ] End-to-end software-change demo
-- [ ] One agent-runtime adapter
-- [ ] Independent verifier process
-- [ ] Conflict detection for concurrent resource writes
-- [ ] Pause, resume, repair, and rollback paths
-- [ ] Trace viewer for decisions, actions, evidence, and acceptance
+- [ ] Git repository gateway
+- [ ] HTTP API gateway with idempotency keys
+- [ ] Document gateway
+- [ ] Database read gateway
+- [ ] Resource conflict and stale-revision checks
+- [ ] Rollback contracts for reversible actions
 
-## v0.4 — Runtime and domain ecosystem
+## v0.4 — Distributed control plane
 
-- [ ] Adapter contract and compatibility suite
-- [ ] Additional agent-runtime adapters
-- [ ] Document and data workflow examples
-- [ ] Capability registry and reuse decisions
-- [ ] Evaluation datasets and regression gates
+- [ ] Shared database implementation
+- [ ] Concurrent worker claims and leases
+- [ ] Policy decision audit records
+- [ ] Human approval checkpoints
+- [ ] Web task and evidence viewer
+- [ ] OpenTelemetry traces and operational metrics
 
 ## v0.5 — Controlled capability growth
 
-- [ ] Trace-to-case curation
-- [ ] Candidate capability packaging
-- [ ] Isolated evaluation and risk review
-- [ ] Canary promotion and rollback
-- [ ] Capability lineage and version history
+- [ ] Curate accepted traces into sanitized cases
+- [ ] Package candidate capabilities
+- [ ] Run isolated evaluation and regression gates
+- [ ] Canary capability promotion
+- [ ] Capability lineage, versioning and rollback
 
 ## Non-goals
 
 TaskSeal does not aim to:
 
-- build another foundation model;
-- replace existing agent loops or workflow engines;
-- make unsupervised production changes by default;
+- replace model runtimes or workflow engines;
 - treat model confidence as acceptance evidence;
-- allow a running agent to promote its own capabilities.
-
-Milestones may change as contracts are tested against real, sanitized use cases.
-Open a design proposal if a missing boundary blocks your use case.
+- allow executors to expand their own authority;
+- enable unsupervised production changes by default;
+- promote a capability because it succeeded once.

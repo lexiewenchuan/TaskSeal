@@ -1,6 +1,6 @@
 # Security Policy
 
-TaskSeal is currently a design preview. Do not use it as the sole authorization
+TaskSeal is currently an early alpha. Do not use it as the sole authorization
 or safety boundary for production systems.
 
 ## Reporting a vulnerability
@@ -32,5 +32,6 @@ The project treats the following as security boundaries:
 - task completion requires acceptance, not executor self-reporting;
 - capability promotion must be isolated, evaluated, reversible, and explicit.
 
-These are design invariants, not a claim that the current preview provides a
-production security implementation.
+The local reference kernel implements these invariants for its tested surface.
+It is not yet a production security implementation or distributed policy
+system.
