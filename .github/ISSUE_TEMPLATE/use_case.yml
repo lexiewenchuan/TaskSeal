@@ -1,0 +1,41 @@
+name: Use case
+description: Share a sanitized domain scenario that TaskSeal should support.
+title: "[Use case]: "
+labels:
+  - use-case
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What outcome should the system deliver?
+    validations:
+      required: true
+  - type: textarea
+    id: actors
+    attributes:
+      label: Actors and resources
+      description: Who participates, and which resources may be read or changed?
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: Risks and prohibited actions
+      description: What must the agent never do without additional authority?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Evidence and acceptance
+      description: What would prove the outcome is correct?
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data check
+      options:
+        - label: This use case is sanitized and contains no private organization or user data.
+          required: true

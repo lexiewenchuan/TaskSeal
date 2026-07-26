@@ -1,0 +1,45 @@
+name: Bug report
+description: Report an inconsistency in a contract, example, diagram, or document.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Work Item schema
+        - Public example
+        - Architecture document
+        - Diagram
+        - Repository documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What is inconsistent?
+      description: Explain what you expected and what you found.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction or link
+      description: Include paths, validator output, or a small sanitized example.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: How could this ambiguity or defect affect a real task?
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data check
+      options:
+        - label: This report contains no credentials, customer data, production traces, or private repository content.
+          required: true

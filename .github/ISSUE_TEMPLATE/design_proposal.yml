@@ -1,0 +1,58 @@
+name: Design proposal
+description: Propose a contract, invariant, architecture, or evaluation change.
+title: "[Design]: "
+labels:
+  - design
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping shape TaskSeal. Keep the proposal grounded in a real task or failure mode.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or failure mode
+      description: What real agent task exposes the missing boundary?
+      placeholder: Describe the task, actors, resources, and what can go wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: current-gap
+    attributes:
+      label: Why the current design is insufficient
+      description: Point to the relevant concept, contract, or invariant.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Smallest proposed change
+      description: Prefer a narrow contract or invariant change over a new subsystem.
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Authorization and side effects
+      description: Explain any change to authority, resources, actions, or external effects.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and acceptance
+      description: What observable evidence would demonstrate that this design works?
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility and rollback
+      description: What existing contracts could change, and how can the change be reversed?
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data check
+      options:
+        - label: This proposal contains no credentials, customer data, production traces, or private repository content.
+          required: true
