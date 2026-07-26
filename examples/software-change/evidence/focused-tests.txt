@@ -1,0 +1,11 @@
+Demo verification record
+========================
+
+Resource revision: demo-result-revision
+Executor: deterministic-verifier
+
+PASS empty username is rejected before request dispatch
+PASS valid username preserves the existing login flow
+
+This file is illustrative evidence for the public Work Item example. It is not
+a captured production test result.

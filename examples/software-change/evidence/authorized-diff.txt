@@ -1,0 +1,11 @@
+Demo authorization check
+========================
+
+Resource revision: demo-result-revision
+Authorized root: examples/demo-login-app
+
+PASS all changed paths are inside the authorized root
+PASS no network, deployment, or external-service action was observed
+
+This file is illustrative evidence for the public Work Item example. It is not
+a captured production diff.
