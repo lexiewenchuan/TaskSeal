@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  public-contract:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -21,8 +21,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install contract validator
-        run: python -m pip install --disable-pip-version-check check-jsonschema==0.33.3
+      - name: Install TaskSeal and contract validator
+        run: |
+          python -m pip install --disable-pip-version-check -e .
+          python -m pip install --disable-pip-version-check check-jsonschema==0.33.3
+
+      - name: Run unit and integration tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run CLI smoke test
+        run: taskseal --database /tmp/taskseal.db demo --workspace /tmp/taskseal-demo
 
       - name: Validate Work Item example
         run: >-
