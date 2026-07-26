@@ -1,0 +1,34 @@
+name: validate
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  public-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install contract validator
+        run: python -m pip install --disable-pip-version-check check-jsonschema==0.33.3
+
+      - name: Validate Work Item example
+        run: >-
+          check-jsonschema
+          --schemafile spec/work-item.schema.json
+          examples/software-change/work-item.json
+
+      - name: Check patch whitespace
+        run: git diff-tree --check --root -r HEAD
