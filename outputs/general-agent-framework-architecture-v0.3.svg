@@ -1,0 +1,287 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1160" width="1500" height="1160">
+  <style>
+    text { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Microsoft YaHei", sans-serif; fill: #111827; }
+    .title { font-size: 25px; font-weight: 700; }
+    .subtitle { font-size: 13px; fill: #6b7280; }
+    .lane-title { font-size: 16px; font-weight: 700; }
+    .node-title { font-size: 14px; font-weight: 650; }
+    .node-sub { font-size: 11px; fill: #6b7280; }
+    .tiny { font-size: 10px; fill: #6b7280; }
+    .badge { font-size: 10px; font-weight: 650; }
+  </style>
+  <defs>
+    <marker id="blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#2563eb"/>
+    </marker>
+    <marker id="orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#ea580c"/>
+    </marker>
+    <marker id="purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#7c3aed"/>
+    </marker>
+    <marker id="green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#16a34a"/>
+    </marker>
+    <marker id="gray" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#6b7280"/>
+    </marker>
+    <marker id="teal" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0,10 3.5,0 7" fill="#0f766e"/>
+    </marker>
+  </defs>
+
+  <rect width="1500" height="1160" fill="#ffffff"/>
+  <text x="50" y="42" class="title">通用 Agent 框架 · 总体架构（通俗版）</text>
+  <text x="50" y="67" class="subtitle">让目标可信完成，并把经过验证的经验安全地变成下一次可复用的能力</text>
+
+  <!-- lane backgrounds -->
+  <rect x="50" y="92" width="1400" height="115" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+  <rect x="50" y="225" width="880" height="365" rx="12" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.5"/>
+  <rect x="950" y="225" width="500" height="365" rx="12" fill="#faf5ff" stroke="#ddd6fe" stroke-width="1.5"/>
+  <rect x="50" y="615" width="1400" height="175" rx="12" fill="#f9fafb" stroke="#d1d5db" stroke-width="1.5" stroke-dasharray="7,4"/>
+  <rect x="50" y="815" width="1400" height="155" rx="12" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1.5"/>
+  <rect x="50" y="995" width="1400" height="115" rx="12" fill="#f0fdfa" stroke="#99f6e4" stroke-width="1.5"/>
+
+  <text x="70" y="118" class="lane-title" fill="#1d4ed8">01 · 交互与入口平面</text>
+  <text x="70" y="252" class="lane-title" fill="#c2410c">02 · Agent 控制平面</text>
+  <text x="970" y="252" class="lane-title" fill="#6d28d9">03 · 执行与验证平面</text>
+  <text x="70" y="642" class="lane-title">04 · 共享治理与状态底座</text>
+  <text x="70" y="842" class="lane-title" fill="#047857">05 · 经验与成长平面</text>
+  <text x="70" y="1022" class="lane-title" fill="#0f766e">06 · 外部资源平面</text>
+
+  <!-- primary arrows, behind nodes -->
+  <path d="M 230 163 L 300 163" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 490 163 L 560 163" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 750 163 L 820 163" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 1010 163 L 1080 163" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 1175 197 L 1175 272 L 170 272 L 170 292" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+
+  <path d="M 260 337 L 300 337" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 460 337 L 500 337" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 660 337 L 700 337" fill="none" stroke="#ea580c" stroke-width="2" marker-end="url(#orange)"/>
+  <path d="M 790 382 L 790 435" fill="none" stroke="#ea580c" stroke-width="2" marker-end="url(#orange)"/>
+  <path d="M 700 480 L 660 480" fill="none" stroke="#ea580c" stroke-width="2" marker-end="url(#orange)"/>
+  <path d="M 500 480 L 460 480" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <path d="M 300 480 L 260 480" fill="none" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+
+  <path d="M 580 525 L 580 600 L 940 600 L 940 337 L 990 337" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple)"/>
+  <path d="M 1150 337 L 1190 337" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple)"/>
+  <path d="M 1190 355 L 1170 355 L 1170 400 L 1070 400 L 1070 420" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple)"/>
+  <path d="M 1270 382 L 1270 420" fill="none" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple)"/>
+  <path d="M 1150 482 L 1190 482" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#green)"/>
+  <path d="M 1300 527 L 1300 605 L 1220 605 L 1220 660" fill="none" stroke="#16a34a" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#green)"/>
+
+  <path d="M 790 525 L 790 605 L 855 605 L 855 660" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gray)"/>
+  <path d="M 380 660 L 280 660 L 280 337 L 300 337" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gray)"/>
+  <path d="M 590 660 L 480 660 L 480 337 L 500 337" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gray)"/>
+  <path d="M 800 660 L 900 660 L 900 337 L 880 337" fill="none" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gray)"/>
+
+  <path d="M 1070 527 L 1468 527 L 1468 995 L 1450 995" fill="none" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#purple)"/>
+
+  <!-- memory and controlled growth flows -->
+  <path d="M 180 855 L 32 855 L 32 400 L 280 400 L 280 337 L 300 337" fill="none" stroke="#0f766e" stroke-width="1.6" stroke-dasharray="6,4" marker-end="url(#teal)"/>
+  <path d="M 1220 745 L 1220 776 L 415 776 L 415 855" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#teal)"/>
+  <path d="M 500 892 L 540 892" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#teal)"/>
+  <path d="M 710 892 L 750 892" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#teal)"/>
+  <path d="M 920 892 L 960 892" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#teal)"/>
+  <path d="M 1130 892 L 1170 892" fill="none" stroke="#0f766e" stroke-width="1.8" marker-end="url(#teal)"/>
+  <path d="M 1285 855 L 1285 800 L 380 800 L 380 745" fill="none" stroke="#0f766e" stroke-width="1.8" stroke-dasharray="6,4" marker-end="url(#teal)"/>
+
+  <!-- entry nodes -->
+  <rect x="90" y="132" width="140" height="62" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="160" y="157" text-anchor="middle" class="node-title">目标发起人</text>
+  <text x="160" y="177" text-anchor="middle" class="node-sub">用户 · 系统 · 事件</text>
+
+  <rect x="300" y="132" width="190" height="62" rx="8" fill="#ffffff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="395" y="157" text-anchor="middle" class="node-title">接入层</text>
+  <text x="395" y="177" text-anchor="middle" class="node-sub">聊天 · 页面 · 接口 · 自动触发</text>
+
+  <rect x="560" y="132" width="190" height="62" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="655" y="157" text-anchor="middle" class="node-title">目标理解</text>
+  <text x="655" y="177" text-anchor="middle" class="node-sub">目标澄清 · 主体识别 · 初始风险</text>
+
+  <rect x="820" y="132" width="190" height="62" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="915" y="157" text-anchor="middle" class="node-title">任务入口</text>
+  <text x="915" y="177" text-anchor="middle" class="node-sub">创建 · 查询 · 暂停 · 恢复 · 取消</text>
+
+  <rect x="1080" y="132" width="190" height="62" rx="8" fill="#ffffff" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="1175" y="157" text-anchor="middle" class="node-title">任务单</text>
+  <text x="1175" y="177" text-anchor="middle" class="node-sub">目标 · 范围 · 风险 · 验收标准</text>
+
+  <rect x="1340" y="132" width="80" height="62" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5"/>
+  <text x="1380" y="157" text-anchor="middle" class="badge" fill="#1d4ed8">唯一顶层</text>
+  <text x="1380" y="175" text-anchor="middle" class="badge" fill="#1d4ed8">治理单元</text>
+
+  <!-- control plane nodes -->
+  <rect x="80" y="292" width="180" height="90" rx="9" fill="#ffffff" stroke="#fdba74" stroke-width="1.5"/>
+  <text x="170" y="318" text-anchor="middle" class="node-title">任务管理器</text>
+  <text x="170" y="340" text-anchor="middle" class="node-sub">状态跃迁 · 版本 · 并发控制</text>
+  <text x="170" y="359" text-anchor="middle" class="node-sub">下一动作 · 阻塞 · 恢复点</text>
+
+  <rect x="300" y="292" width="160" height="90" rx="9" fill="#ffffff" stroke="#fdba74" stroke-width="1.5"/>
+  <text x="380" y="318" text-anchor="middle" class="node-title">上下文整理器</text>
+  <text x="380" y="340" text-anchor="middle" class="node-sub">资源 · 能力 · 契约</text>
+  <text x="380" y="359" text-anchor="middle" class="node-sub">历史决策 · 当前版本</text>
+
+  <rect x="500" y="292" width="160" height="90" rx="9" fill="#ffffff" stroke="#fb923c" stroke-width="1.5"/>
+  <text x="580" y="318" text-anchor="middle" class="node-title">规划与拆解</text>
+  <text x="580" y="340" text-anchor="middle" class="node-sub">执行方案 · 关键判断 · 子任务</text>
+  <text x="580" y="359" text-anchor="middle" class="node-sub">复用 / 扩展 / 创建决策</text>
+
+  <rect x="700" y="292" width="180" height="90" rx="9" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="790" y="318" text-anchor="middle" class="node-title">规则与风险中心</text>
+  <text x="790" y="340" text-anchor="middle" class="node-sub">风险分级 · 禁止项 · 审批点</text>
+  <text x="790" y="359" text-anchor="middle" class="node-sub">动作级策略 · 最小权限计算</text>
+
+  <rect x="80" y="435" width="180" height="90" rx="9" fill="#ffffff" stroke="#fdba74" stroke-width="1.5"/>
+  <text x="170" y="461" text-anchor="middle" class="node-title">任务状态管理</text>
+  <text x="170" y="483" text-anchor="middle" class="node-sub">草稿 → 就绪 → 执行中</text>
+  <text x="170" y="502" text-anchor="middle" class="node-sub">验收中 → 已完成 / 被阻塞</text>
+
+  <rect x="300" y="435" width="160" height="90" rx="9" fill="#ffffff" stroke="#fdba74" stroke-width="1.5"/>
+  <text x="380" y="461" text-anchor="middle" class="node-title">决策记录</text>
+  <text x="380" y="483" text-anchor="middle" class="node-sub">关键判断 · 假设 · 权衡</text>
+  <text x="380" y="502" text-anchor="middle" class="node-sub">人工决定 · 变更原因</text>
+
+  <rect x="500" y="435" width="160" height="90" rx="10" fill="#fff7ed" stroke="#f97316" stroke-width="2.5"/>
+  <rect x="504" y="439" width="152" height="82" rx="8" fill="none" stroke="#fb923c" stroke-width="0.8"/>
+  <text x="580" y="461" text-anchor="middle" class="node-title">总调度</text>
+  <text x="580" y="483" text-anchor="middle" class="node-sub">调度 · 委派 · 汇总 · 重试</text>
+  <text x="580" y="502" text-anchor="middle" class="node-sub">统一协调多次执行和多个 Agent</text>
+
+  <rect x="700" y="435" width="180" height="90" rx="9" fill="#fff7ed" stroke="#f97316" stroke-width="2"/>
+  <text x="790" y="461" text-anchor="middle" class="node-title">授权与占用管理</text>
+  <text x="790" y="483" text-anchor="middle" class="node-sub">资源 · 可做动作 · 使用条件</text>
+  <text x="790" y="502" text-anchor="middle" class="node-sub">有效期 · 租约 · 撤销 · 扩权申请</text>
+
+  <!-- execution nodes -->
+  <rect x="990" y="292" width="160" height="90" rx="9" fill="#ffffff" stroke="#c4b5fd" stroke-width="1.5"/>
+  <text x="1070" y="318" text-anchor="middle" class="node-title">Agent 运行适配</text>
+  <text x="1070" y="340" text-anchor="middle" class="node-sub">模型调用 · 对话状态 · 任务转交</text>
+  <text x="1070" y="359" text-anchor="middle" class="node-sub">断点恢复 · 实时输出 · 运行记录</text>
+
+  <rect x="1190" y="292" width="160" height="90" rx="9" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="1270" y="318" text-anchor="middle" class="node-title">执行者池</text>
+  <text x="1270" y="340" text-anchor="middle" class="node-sub">Agent · 固定程序 · 人</text>
+  <text x="1270" y="359" text-anchor="middle" class="node-sub">子任务 · 并行执行 · 等待</text>
+
+  <rect x="990" y="420" width="160" height="107" rx="9" fill="#ffffff" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="1070" y="446" text-anchor="middle" class="node-title">资源操作入口</text>
+  <text x="1070" y="468" text-anchor="middle" class="node-sub">工具选择 · 操作执行 · 结果统一</text>
+  <text x="1070" y="487" text-anchor="middle" class="node-sub">授权检查 · 幂等 · 版本观察</text>
+  <text x="1070" y="508" text-anchor="middle" class="tiny">所有真实副作用经过统一门面</text>
+
+  <rect x="1190" y="420" width="220" height="107" rx="9" fill="#f0fdf4" stroke="#4ade80" stroke-width="1.8"/>
+  <text x="1300" y="446" text-anchor="middle" class="node-title">验收流水线</text>
+  <text x="1300" y="468" text-anchor="middle" class="node-sub">登记产物 → 收集证据</text>
+  <text x="1300" y="487" text-anchor="middle" class="node-sub">选择检查方式 → 得出验收结论</text>
+  <text x="1300" y="508" text-anchor="middle" class="tiny">确定性 / Agent / 人工评估器</text>
+
+  <!-- foundation nodes -->
+  <rect x="80" y="660" width="180" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="170" y="685" text-anchor="middle" class="node-title">资源目录</text>
+  <text x="170" y="707" text-anchor="middle" class="node-sub">身份 · 地址 · 版本 · 所有者</text>
+  <text x="170" y="726" text-anchor="middle" class="tiny">资源发现与版本观察</text>
+
+  <rect x="290" y="660" width="180" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="380" y="685" text-anchor="middle" class="node-title">能力目录</text>
+  <text x="380" y="707" text-anchor="middle" class="node-sub">语义能力 · 实现 · 消费者</text>
+  <text x="380" y="726" text-anchor="middle" class="tiny">成本 · 风险 · 可靠性</text>
+
+  <rect x="500" y="660" width="180" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="590" y="685" text-anchor="middle" class="node-title">契约与约定</text>
+  <text x="590" y="707" text-anchor="middle" class="node-sub">数据格式 · 规则 · 模板</text>
+  <text x="590" y="726" text-anchor="middle" class="tiny">草稿 / 已确认 · 负责人</text>
+
+  <rect x="710" y="660" width="180" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="800" y="685" text-anchor="middle" class="node-title">规则库</text>
+  <text x="800" y="707" text-anchor="middle" class="node-sub">风险 · 动作 · 审批 · 禁止项</text>
+  <text x="800" y="726" text-anchor="middle" class="tiny">策略版本与适用条件</text>
+
+  <rect x="920" y="660" width="180" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="1010" y="685" text-anchor="middle" class="node-title">任务状态与事件</text>
+  <text x="1010" y="707" text-anchor="middle" class="node-sub">任务单 · 执行记录 · 验收状态</text>
+  <text x="1010" y="726" text-anchor="middle" class="tiny">事件日志 · 状态投影 · 恢复点</text>
+
+  <rect x="1130" y="660" width="180" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="1220" y="685" text-anchor="middle" class="node-title">产物与证据库</text>
+  <text x="1220" y="707" text-anchor="middle" class="node-sub">产物 · 证据 · 来源 · 完整性</text>
+  <text x="1220" y="726" text-anchor="middle" class="tiny">验收项与版本绑定</text>
+
+  <rect x="1340" y="660" width="80" height="85" rx="8" fill="#ffffff" stroke="#d1d5db"/>
+  <text x="1380" y="684" text-anchor="middle" class="badge">审计</text>
+  <text x="1380" y="702" text-anchor="middle" class="badge">指标</text>
+  <text x="1380" y="720" text-anchor="middle" class="badge">知识</text>
+
+  <!-- controlled growth nodes -->
+  <rect x="80" y="855" width="200" height="75" rx="8" fill="#ffffff" stroke="#34d399" stroke-width="1.5"/>
+  <text x="180" y="880" text-anchor="middle" class="node-title">分层长期记忆</text>
+  <text x="180" y="902" text-anchor="middle" class="node-sub">用户 · 任务 · 技能 · 组织 · 世界</text>
+  <text x="180" y="919" text-anchor="middle" class="tiny">读取后先作为参考信息</text>
+
+  <rect x="330" y="855" width="170" height="75" rx="8" fill="#ffffff" stroke="#34d399" stroke-width="1.5"/>
+  <text x="415" y="880" text-anchor="middle" class="node-title">案例整理</text>
+  <text x="415" y="902" text-anchor="middle" class="node-sub">任务轨迹 · 成功 · 失败</text>
+  <text x="415" y="919" text-anchor="middle" class="tiny">绑定证据和资源版本</text>
+
+  <rect x="540" y="855" width="170" height="75" rx="8" fill="#ffffff" stroke="#34d399" stroke-width="1.5"/>
+  <text x="625" y="880" text-anchor="middle" class="node-title">候选能力</text>
+  <text x="625" y="902" text-anchor="middle" class="node-sub">技能 · 模板 · 规则 · 策略</text>
+  <text x="625" y="919" text-anchor="middle" class="tiny">默认不进入正式使用</text>
+
+  <rect x="750" y="855" width="170" height="75" rx="8" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+  <text x="835" y="880" text-anchor="middle" class="node-title">隔离评测</text>
+  <text x="835" y="902" text-anchor="middle" class="node-sub">保留任务 · 效果对比 · 回归</text>
+  <text x="835" y="919" text-anchor="middle" class="tiny">防止只记住历史答案</text>
+
+  <rect x="960" y="855" width="170" height="75" rx="8" fill="#ffffff" stroke="#10b981" stroke-width="1.8"/>
+  <text x="1045" y="880" text-anchor="middle" class="node-title">风险检查与试用</text>
+  <text x="1045" y="902" text-anchor="middle" class="node-sub">权限 · 成本 · 安全 · 小范围</text>
+  <text x="1045" y="919" text-anchor="middle" class="tiny">高风险变化需要人工批准</text>
+
+  <rect x="1170" y="855" width="230" height="75" rx="9" fill="#d1fae5" stroke="#059669" stroke-width="2"/>
+  <text x="1285" y="880" text-anchor="middle" class="node-title">晋升、暂停或回退</text>
+  <text x="1285" y="902" text-anchor="middle" class="node-sub">验证稳定 → 进入能力目录</text>
+  <text x="1285" y="919" text-anchor="middle" class="tiny">失败版本保留记录但不继续启用</text>
+
+  <!-- external resource nodes -->
+  <rect x="90" y="1038" width="160" height="48" rx="8" fill="#ffffff" stroke="#5eead4"/>
+  <text x="170" y="1067" text-anchor="middle" class="node-title">代码与构建</text>
+  <rect x="320" y="1038" width="160" height="48" rx="8" fill="#ffffff" stroke="#5eead4"/>
+  <text x="400" y="1067" text-anchor="middle" class="node-title">文件与文档</text>
+  <rect x="550" y="1038" width="160" height="48" rx="8" fill="#ffffff" stroke="#5eead4"/>
+  <text x="630" y="1067" text-anchor="middle" class="node-title">数据与查询</text>
+  <rect x="780" y="1038" width="160" height="48" rx="8" fill="#ffffff" stroke="#5eead4"/>
+  <text x="860" y="1067" text-anchor="middle" class="node-title">工单与消息</text>
+  <rect x="1010" y="1038" width="160" height="48" rx="8" fill="#ffffff" stroke="#5eead4"/>
+  <text x="1090" y="1067" text-anchor="middle" class="node-title">浏览器与在线系统</text>
+  <rect x="1240" y="1038" width="180" height="48" rx="8" fill="#ffffff" stroke="#5eead4"/>
+  <text x="1330" y="1067" text-anchor="middle" class="node-title">服务与基础设施</text>
+
+  <!-- annotations -->
+  <rect x="80" y="548" width="800" height="26" rx="13" fill="#ffedd5"/>
+  <text x="480" y="566" text-anchor="middle" class="badge" fill="#c2410c">控制面决定：为什么做、允许做什么、由谁做、何时暂停、怎样证明完成</text>
+  <rect x="990" y="548" width="420" height="26" rx="13" fill="#ede9fe"/>
+  <text x="1200" y="566" text-anchor="middle" class="badge" fill="#6d28d9">执行面负责：如何运行、调用工具、产生副作用并返回可验证观察</text>
+
+  <!-- legend -->
+  <line x1="55" y1="1132" x2="88" y2="1132" stroke="#2563eb" stroke-width="2" marker-end="url(#blue)"/>
+  <text x="98" y="1136" class="node-sub">目标 / 控制流</text>
+  <line x1="230" y1="1132" x2="263" y2="1132" stroke="#ea580c" stroke-width="2" marker-end="url(#orange)"/>
+  <text x="273" y="1136" class="node-sub">策略 / 授权流</text>
+  <line x1="405" y1="1132" x2="438" y2="1132" stroke="#7c3aed" stroke-width="2" marker-end="url(#purple)"/>
+  <text x="448" y="1136" class="node-sub">执行 / 副作用</text>
+  <line x1="585" y1="1132" x2="618" y2="1132" stroke="#16a34a" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#green)"/>
+  <text x="628" y="1136" class="node-sub">证据 / 验收回传</text>
+  <line x1="790" y1="1132" x2="823" y2="1132" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#gray)"/>
+  <text x="833" y="1136" class="node-sub">事实 / 治理读取</text>
+  <line x1="965" y1="1132" x2="998" y2="1132" stroke="#0f766e" stroke-width="1.8" marker-end="url(#teal)"/>
+  <text x="1008" y="1136" class="node-sub">记忆 / 成长</text>
+
+  <rect x="1140" y="1118" width="80" height="28" rx="14" fill="#eff6ff"/>
+  <text x="1180" y="1137" text-anchor="middle" class="badge" fill="#1d4ed8">可持续</text>
+  <rect x="1230" y="1118" width="80" height="28" rx="14" fill="#fff7ed"/>
+  <text x="1270" y="1137" text-anchor="middle" class="badge" fill="#c2410c">受治理</text>
+  <rect x="1320" y="1118" width="100" height="28" rx="14" fill="#f0fdf4"/>
+  <text x="1370" y="1137" text-anchor="middle" class="badge" fill="#15803d">证据优先</text>
+</svg>
