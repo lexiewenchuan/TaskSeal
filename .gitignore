@@ -1,0 +1,37 @@
+# OS and editor files
+.DS_Store
+__pycache__/
+*.py[cod]
+.idea/
+.vscode/
+
+# Local tooling
+.codex/
+.agents/
+.tmp/
+
+# Private engineering-harness workspace data.
+# These files remain local and are intentionally excluded from public history.
+AGENTS.md
+automations/
+capabilities/
+changes/
+checks/
+evaluations/
+generated/
+harness.json
+projects/
+repositories/
+review-notes/
+scripts/
+templates/
+tests/
+
+# Publish only the TaskSeal diagrams selected below.
+outputs/*
+!outputs/agent-work-os-interview-overview-v1.1.png
+!outputs/agent-work-os-interview-overview-v1.1.svg
+!outputs/agent-work-os-interview-architecture-v1.0.png
+!outputs/agent-work-os-interview-architecture-v1.0.svg
+!outputs/general-agent-framework-architecture-v0.3.png
+!outputs/general-agent-framework-architecture-v0.3.svg
