@@ -1,0 +1,145 @@
+{
+  "schema_version": "0.1",
+  "id": "work-demo-login-validation-001",
+  "goal": {
+    "summary": "Reject an empty username before the login request is sent.",
+    "requested_by": "demo-user",
+    "constraints": [
+      "Change only the login form module.",
+      "Do not publish, deploy, or modify external services."
+    ]
+  },
+  "status": "accepted",
+  "scope": {
+    "resources": [
+      {
+        "id": "resource-demo-repository",
+        "kind": "git-repository",
+        "locator": "examples/demo-login-app",
+        "access": "write",
+        "revision": "demo-base-revision"
+      }
+    ],
+    "prohibited": [
+      "network access",
+      "deployment",
+      "changes outside examples/demo-login-app"
+    ]
+  },
+  "risk": {
+    "level": "low",
+    "reasons": [
+      "The example uses a local, disposable repository.",
+      "The authorization excludes external side effects."
+    ]
+  },
+  "plan": [
+    {
+      "id": "step-inspect",
+      "summary": "Inspect the current validation and focused tests.",
+      "status": "completed",
+      "executor": "coding-agent"
+    },
+    {
+      "id": "step-change",
+      "summary": "Add the smallest empty-username validation change.",
+      "status": "completed",
+      "executor": "coding-agent"
+    },
+    {
+      "id": "step-verify",
+      "summary": "Run focused tests and inspect the authorized diff.",
+      "status": "completed",
+      "executor": "deterministic-verifier"
+    }
+  ],
+  "authorizations": [
+    {
+      "id": "auth-demo-write",
+      "subject": "coding-agent",
+      "resource_ids": [
+        "resource-demo-repository"
+      ],
+      "actions": [
+        "read",
+        "edit",
+        "run-focused-tests"
+      ],
+      "conditions": [
+        "Paths must remain under examples/demo-login-app.",
+        "No network access is allowed."
+      ],
+      "expires_at": null,
+      "status": "granted"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "artifact-demo-diff",
+      "kind": "git-diff",
+      "uri": "evidence/authorized-diff.txt",
+      "revision": "demo-result-revision",
+      "produced_by": "coding-agent"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence-focused-tests",
+      "kind": "test-result",
+      "uri": "evidence/focused-tests.txt",
+      "supports": [
+        "criterion-empty-username",
+        "criterion-existing-valid-login"
+      ],
+      "resource_revision": "demo-result-revision",
+      "observed_at": "2026-07-26T08:00:00Z",
+      "collected_by": "deterministic-verifier"
+    },
+    {
+      "id": "evidence-authorized-diff",
+      "kind": "scope-check",
+      "uri": "evidence/authorized-diff.txt",
+      "supports": [
+        "criterion-scope"
+      ],
+      "resource_revision": "demo-result-revision",
+      "observed_at": "2026-07-26T08:01:00Z",
+      "collected_by": "deterministic-verifier"
+    }
+  ],
+  "acceptance": [
+    {
+      "id": "criterion-empty-username",
+      "statement": "An empty username is rejected before a login request is sent.",
+      "status": "passed",
+      "evidence_ids": [
+        "evidence-focused-tests"
+      ],
+      "verified_by": "independent-acceptor"
+    },
+    {
+      "id": "criterion-existing-valid-login",
+      "statement": "A valid username can still proceed through the existing login flow.",
+      "status": "passed",
+      "evidence_ids": [
+        "evidence-focused-tests"
+      ],
+      "verified_by": "independent-acceptor"
+    },
+    {
+      "id": "criterion-scope",
+      "statement": "Every changed path is within the authorized resource scope.",
+      "status": "passed",
+      "evidence_ids": [
+        "evidence-authorized-diff"
+      ],
+      "verified_by": "independent-acceptor"
+    }
+  ],
+  "next_action": null,
+  "extensions": {
+    "taskseal.example": {
+      "note": "This is a sanitized contract example, not a captured production run."
+    }
+  }
+}
