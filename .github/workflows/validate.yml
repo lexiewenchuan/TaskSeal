@@ -12,6 +12,10 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -19,7 +23,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install TaskSeal and contract validator
         run: |
@@ -30,13 +34,21 @@ jobs:
         run: python -m unittest discover -s tests -v
 
       - name: Run CLI smoke test
-        run: taskseal --database /tmp/taskseal.db demo --workspace /tmp/taskseal-demo
-
-      - name: Validate Work Item example
         run: >-
-          check-jsonschema
-          --schemafile spec/work-item.schema.json
-          examples/software-change/work-item.json
+          taskseal
+          --database /tmp/taskseal.db
+          demo
+          --workspace /tmp/taskseal-demo
+          > /tmp/taskseal-runtime-work-item.json
+
+      - name: Validate example and runtime Work Items
+        run: |
+          check-jsonschema \
+            --schemafile spec/work-item.schema.json \
+            examples/software-change/work-item.json
+          check-jsonschema \
+            --schemafile spec/work-item.schema.json \
+            /tmp/taskseal-runtime-work-item.json
 
       - name: Check patch whitespace
         run: git diff-tree --check --root -r HEAD
