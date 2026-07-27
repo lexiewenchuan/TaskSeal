@@ -13,7 +13,7 @@ class GatewayTests(unittest.TestCase):
     def test_write_produces_revision_bound_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory)
-            policy = PolicyEngine()
+            policy = PolicyEngine(trusted_authorizers={"owner"})
             work_item = make_work_item()
             authorization = policy.grant(
                 work_item,
@@ -22,6 +22,7 @@ class GatewayTests(unittest.TestCase):
                     resource_ids=["workspace"],
                     actions=["write"],
                 ),
+                granted_by="owner",
             )
             gateway = LocalFileGateway(workspace, policy)
 
@@ -46,7 +47,7 @@ class GatewayTests(unittest.TestCase):
     def test_path_escape_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             workspace = Path(directory)
-            policy = PolicyEngine()
+            policy = PolicyEngine(trusted_authorizers={"owner"})
             work_item = make_work_item()
             authorization = policy.grant(
                 work_item,
@@ -55,6 +56,7 @@ class GatewayTests(unittest.TestCase):
                     resource_ids=["workspace"],
                     actions=["write"],
                 ),
+                granted_by="owner",
             )
             gateway = LocalFileGateway(workspace, policy)
 
