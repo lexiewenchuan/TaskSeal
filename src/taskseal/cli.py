@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from typing import Optional, Sequence
 
+from .acceptance import Acceptor, FileSha256EvidenceVerifier
 from .engine import TaskSealEngine
 from .gateway import LocalFileGateway
 from .models import (
@@ -25,8 +26,14 @@ def _store(path: str) -> SQLiteWorkItemStore:
 def run_demo(workspace: Path, database: Path) -> WorkItem:
     workspace.mkdir(parents=True, exist_ok=True)
     store = SQLiteWorkItemStore(database)
-    policy = PolicyEngine()
-    engine = TaskSealEngine(store, policy=policy)
+    policy = PolicyEngine(trusted_authorizers={"demo-owner"})
+    acceptor = Acceptor(
+        trusted_verifiers={"demo-verifier"},
+        evidence_verifiers={
+            "file-sha256": FileSha256EvidenceVerifier(workspace)
+        },
+    )
+    engine = TaskSealEngine(store, policy=policy, acceptor=acceptor)
 
     work_item = WorkItem.create(
         goal="Create a verified TaskSeal demo result.",
@@ -57,11 +64,6 @@ def run_demo(workspace: Path, database: Path) -> WorkItem:
                 summary="Write a result through the authorized resource gateway.",
                 executor="demo-agent",
             ),
-            PlanStep(
-                id="verify-result",
-                summary="Verify evidence independently.",
-                executor="demo-verifier",
-            ),
         ],
     )
     engine.request_authorization(work_item)
@@ -71,8 +73,8 @@ def run_demo(workspace: Path, database: Path) -> WorkItem:
             subject="demo-agent",
             resource_ids=["demo-workspace"],
             actions=["read", "write"],
-            conditions=["Only the configured local workspace may be changed."],
         ),
+        granted_by="demo-owner",
     )
     engine.start(work_item, executor="demo-agent")
 
@@ -87,6 +89,9 @@ def run_demo(workspace: Path, database: Path) -> WorkItem:
         supports=["result-created"],
     )
     engine.attach_result(work_item, artifact=artifact, evidence=evidence)
+    engine.complete_step(
+        work_item, step_id="write-result", executor="demo-agent"
+    )
     engine.begin_verification(work_item)
     engine.accept(work_item, verifier="demo-verifier")
     store.close()
