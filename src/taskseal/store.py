@@ -34,6 +34,7 @@ class SQLiteWorkItemStore:
         event_kind: str = "work_item.created",
         payload: Optional[Dict[str, Any]] = None,
     ) -> None:
+        work_item.validate(require_initial=True)
         with self.connection:
             exists = self.connection.execute(
                 "SELECT 1 FROM work_items WHERE id = ?", (work_item.id,)
@@ -63,6 +64,7 @@ class SQLiteWorkItemStore:
         event_kind: str,
         payload: Optional[Dict[str, Any]] = None,
     ) -> None:
+        work_item.validate()
         previous_revision = work_item.revision
         next_revision = previous_revision + 1
         work_item.updated_at = utc_now()
