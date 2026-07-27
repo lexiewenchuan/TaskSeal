@@ -15,6 +15,18 @@ TaskSeal grows by proving one trustworthy boundary at a time.
 - [x] SQLite snapshots, optimistic revisions and event trail
 - [x] CLI demo and end-to-end tests
 
+## v0.1.1 — Trust boundary hardening
+
+- [x] One canonical contract for runtime, storage, examples and JSON Schema
+- [x] Domain validation before persistence and after loading
+- [x] Explicit trusted authorizers and grant provenance
+- [x] Authorization revocation and audit event
+- [x] Fail-closed unsupported authorization conditions
+- [x] Trusted verifier registry
+- [x] External file re-verification before acceptance
+- [x] Executable repairing-to-planning loop
+- [x] Python 3.9–3.13 CI compatibility matrix
+
 ## v0.2 — Runtime adapter contract
 
 - [ ] Define a runtime-neutral executor protocol

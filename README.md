@@ -18,7 +18,7 @@ effects, revision-bound evidence, and independent acceptance.
 
 [Quick start](#quick-start) · [How it works](#how-it-works) ·
 [Python API](#python-api) · [Architecture](./docs/architecture.md) ·
-[Roadmap](./ROADMAP.md)
+[Roadmap](./ROADMAP.md) · [Changelog](./CHANGELOG.md)
 
 </div>
 
@@ -108,13 +108,17 @@ The agent runtime is replaceable. TaskSeal owns the boundaries around it.
 
 - A legal Work Item state machine
 - Resource- and action-scoped authorization
+- Explicit trusted grantors and recorded authorization provenance
 - Non-expanding child delegation
+- Authorization revocation
 - Authorization expiry checks
 - A local filesystem side-effect gateway
 - Workspace and resource path-escape protection
 - Artifact and SHA-256 evidence generation
 - Evidence-to-criterion traceability
-- Independent verifier enforcement
+- Registered evidence verifiers that re-check external resources
+- Trusted, independent verifier enforcement
+- Domain validation before persistence
 - SQLite snapshots with optimistic revisions
 - An append-only task event trail
 - A zero-dependency CLI demo
@@ -131,19 +135,27 @@ from pathlib import Path
 
 from taskseal import (
     AcceptanceCriterion,
+    Acceptor,
     AuthorizationRequest,
+    FileSha256EvidenceVerifier,
     LocalFileGateway,
+    PlanStep,
     PolicyEngine,
     Resource,
     SQLiteWorkItemStore,
     TaskSealEngine,
     WorkItem,
 )
-from taskseal.models import PlanStep
 
 store = SQLiteWorkItemStore(Path(".taskseal/taskseal.db"))
-policy = PolicyEngine()
-engine = TaskSealEngine(store, policy=policy)
+policy = PolicyEngine(trusted_authorizers={"owner"})
+acceptor = Acceptor(
+    trusted_verifiers={"independent-verifier"},
+    evidence_verifiers={
+        "file-sha256": FileSha256EvidenceVerifier(Path("."))
+    },
+)
+engine = TaskSealEngine(store, policy=policy, acceptor=acceptor)
 
 work = WorkItem.create(
     goal="Create a verified result file.",
@@ -175,6 +187,7 @@ grant = engine.grant(
         resource_ids=["workspace"],
         actions=["write"],
     ),
+    granted_by="owner",
 )
 engine.start(work, executor="agent")
 
@@ -188,20 +201,23 @@ artifact, evidence = LocalFileGateway(Path("."), policy).write_text(
     supports=["result-exists"],
 )
 engine.attach_result(work, artifact=artifact, evidence=evidence)
+engine.complete_step(work, step_id="write", executor="agent")
 engine.begin_verification(work)
 engine.accept(work, verifier="independent-verifier")
 ```
 
 ## Core invariants
 
-1. An executor cannot grant itself more authority.
-2. Delegation cannot expand resources, actions, or expiry.
-3. Task state does not live only in chat history.
-4. Side effects pass through a checked resource gateway.
-5. A successful execution is not task acceptance.
-6. Artifacts do not automatically count as evidence.
-7. Evidence is bound to a resource revision and acceptance criterion.
-8. An executor cannot independently accept its own work.
+1. Root grants require a configured trusted authorizer.
+2. A subject cannot authorize itself.
+3. Delegation cannot expand resources, actions, or expiry.
+4. Task state does not live only in chat history.
+5. Side effects pass through a checked resource gateway.
+6. A successful execution is not task acceptance.
+7. Artifacts do not automatically count as evidence.
+8. Evidence is re-checked against its external resource before acceptance.
+9. An executor cannot independently accept its own work.
+10. Invalid or empty Work Items cannot be persisted.
 
 ## Project structure
 
@@ -219,7 +235,8 @@ TaskSeal/
 ├── tests/              # unit and end-to-end tests
 ├── spec/               # runtime-neutral Work Item schema
 ├── examples/           # sanitized contract examples
-└── docs/               # technical architecture
+├── docs/               # technical architecture
+└── CHANGELOG.md        # version history
 ```
 
 ## Development

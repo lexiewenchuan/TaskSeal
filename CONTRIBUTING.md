@@ -17,6 +17,9 @@ Run the checks:
 ```bash
 PYTHONPATH=src python -m unittest discover -s tests -v
 PYTHONPATH=src python -m taskseal demo
+check-jsonschema \
+  --schemafile spec/work-item.schema.json \
+  examples/software-change/work-item.json
 ```
 
 ## Before opening a pull request
@@ -46,6 +49,7 @@ PYTHONPATH=src python -m taskseal demo
 - [ ] New behavior has tests.
 - [ ] `python -m unittest discover -s tests -v` passes.
 - [ ] The CLI example still runs.
+- [ ] Runtime Work Item output still validates against the public schema.
 - [ ] Documentation matches the implemented behavior.
 - [ ] Public files contain no sensitive or organization-specific data.
 - [ ] Authorization, side effects, evidence and rollback were considered.

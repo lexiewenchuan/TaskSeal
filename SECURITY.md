@@ -35,3 +35,8 @@ The project treats the following as security boundaries:
 The local reference kernel implements these invariants for its tested surface.
 It is not yet a production security implementation or distributed policy
 system.
+
+Trusted authorizers and verifiers are configured process-local identities in
+v0.1.1. They provide explicit provenance and fail-closed defaults, but they are
+not cryptographic workload identity. Production adapters must authenticate
+principals outside the executor process.

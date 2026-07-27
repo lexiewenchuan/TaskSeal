@@ -55,13 +55,17 @@ Demo 会真实跑完：
 
 - 任务状态机与非法状态拦截
 - 面向资源和动作的有限授权
+- 明确信任授权者并记录授权来源
 - 子 Agent 授权不能超过父授权
+- 授权撤销
 - 授权有效期检查
 - 本地文件资源操作入口
 - 工作区与资源目录防逃逸
 - Artifact 与 SHA-256 Evidence
 - 证据与验收项的对应关系
+- 验收前重新读取外部资源并核验证据
 - 执行者不能独立验收自己的结果
+- 持久化前执行统一领域校验
 - SQLite 任务快照、版本冲突检查和事件记录
 - 零依赖 CLI Demo
 - 单元测试和端到端测试
@@ -112,6 +116,7 @@ PYTHONPATH=src python -m taskseal --help
 ```
 
 参与开发前请阅读 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+版本变化见 [CHANGELOG.md](./CHANGELOG.md)。
 
 ## 许可证
 
