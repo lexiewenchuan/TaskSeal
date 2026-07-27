@@ -41,11 +41,16 @@ flowchart LR
 An authorization binds:
 
 ```text
-subject + resources + actions + conditions + expiry
+grantor + subject + resources + actions + expiry
 ```
 
-A delegated grant must be a subset of its parent. A grant cannot introduce a
-new resource, action, or longer expiry.
+A root grant must be issued by a configured trusted authorizer, and a subject
+cannot authorize itself. A delegated grant must be a subset of its parent. A
+grant cannot introduce a new resource, action, or longer expiry.
+
+Free-form authorization conditions are reserved for a future executable policy
+contract. The current kernel rejects them instead of storing unenforced
+security promises.
 
 ### Side effects
 
@@ -65,17 +70,28 @@ A successful function return is not acceptance evidence. The gateway emits:
 - an evidence record declaring which criterion it supports;
 - the collector and observation time.
 
+Before acceptance, a registered evidence verifier finds the matching artifact,
+re-reads the external file, recomputes its SHA-256 digest, and compares the
+current resource, artifact and evidence revisions. Unknown evidence kinds fail
+closed until a verifier is registered for them.
+
 ### Acceptance
 
-The acceptor requires every criterion to have matching evidence kinds,
-criterion support, and a resource revision. An executor cannot be the
-independent verifier for its own work.
+The acceptor requires a configured trusted verifier and every criterion to have
+matching evidence kinds, criterion support, a matching artifact, and a
+re-verified resource revision. An executor cannot be the independent verifier
+for its own work.
 
 ## Durable state
 
 SQLite stores both the current Work Item snapshot and an append-only event
 trail. Updates use an expected revision so stale writers cannot silently
 overwrite newer task state.
+
+The runtime model, CLI output, persisted snapshot, example and JSON Schema use
+the same versioned Work Item contract. Domain validation rejects empty
+acceptance criteria, duplicate identifiers, broken references, illegal initial
+state, and accepted tasks with incomplete work.
 
 This is a reference implementation, not a distributed consensus system.
 Distributed deployments will need a shared database, leases, and stronger
