@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Optional
+from typing import Iterable
 
 from .acceptance import AcceptanceError, Acceptor
 from .models import (
@@ -22,19 +22,23 @@ class TaskSealEngine:
         self,
         store: SQLiteWorkItemStore,
         *,
-        policy: Optional[PolicyEngine] = None,
-        acceptor: Optional[Acceptor] = None,
+        policy: PolicyEngine,
+        acceptor: Acceptor,
     ) -> None:
         self.store = store
-        self.policy = policy or PolicyEngine()
-        self.acceptor = acceptor or Acceptor()
+        self.policy = policy
+        self.acceptor = acceptor
 
     def create(self, work_item: WorkItem) -> WorkItem:
         self.store.create(work_item)
         return work_item
 
     def set_plan(self, work_item: WorkItem, steps: Iterable[PlanStep]) -> None:
-        if work_item.status == WorkStatus.DRAFT:
+        if work_item.status in {
+            WorkStatus.DRAFT,
+            WorkStatus.REPAIRING,
+            WorkStatus.BLOCKED,
+        }:
             transition(work_item, WorkStatus.PLANNING)
         if work_item.status != WorkStatus.PLANNING:
             raise ValueError("a plan can only be set while planning")
@@ -52,14 +56,20 @@ class TaskSealEngine:
         )
 
     def grant(
-        self, work_item: WorkItem, request: AuthorizationRequest
+        self,
+        work_item: WorkItem,
+        request: AuthorizationRequest,
+        *,
+        granted_by: str,
     ) -> Authorization:
         if work_item.status not in {
             WorkStatus.AWAITING_AUTHORIZATION,
             WorkStatus.AUTHORIZED,
         }:
             raise ValueError("work item is not accepting authorizations")
-        authorization = self.policy.grant(work_item, request)
+        authorization = self.policy.grant(
+            work_item, request, granted_by=granted_by
+        )
         if work_item.status == WorkStatus.AWAITING_AUTHORIZATION:
             transition(work_item, WorkStatus.AUTHORIZED)
         self.store.save(
@@ -70,10 +80,8 @@ class TaskSealEngine:
         return authorization
 
     def start(self, work_item: WorkItem, *, executor: str) -> None:
-        has_active_grant = any(
-            authorization.subject == executor
-            and authorization.status == "granted"
-            for authorization in work_item.authorizations
+        has_active_grant = self.policy.has_active_grant(
+            work_item, subject=executor
         )
         if not has_active_grant:
             raise ValueError("executor has no active authorization")
@@ -84,6 +92,51 @@ class TaskSealEngine:
             work_item,
             event_kind="execution.started",
             payload={"executor": executor},
+        )
+
+    def revoke_authorization(
+        self,
+        work_item: WorkItem,
+        *,
+        authorization_id: str,
+        revoked_by: str,
+    ) -> None:
+        authorization = self.policy.revoke(
+            work_item,
+            authorization_id=authorization_id,
+            revoked_by=revoked_by,
+        )
+        self.store.save(
+            work_item,
+            event_kind="authorization.revoked",
+            payload={
+                "authorization_id": authorization.id,
+                "revoked_by": revoked_by,
+            },
+        )
+
+    def complete_step(
+        self, work_item: WorkItem, *, step_id: str, executor: str
+    ) -> None:
+        if work_item.status != WorkStatus.EXECUTING:
+            raise ValueError("plan steps can only complete while executing")
+        step = next(
+            (candidate for candidate in work_item.plan if candidate.id == step_id),
+            None,
+        )
+        if step is None:
+            raise KeyError(step_id)
+        if step.executor is not None and step.executor != executor:
+            raise ValueError("plan step belongs to another executor")
+        if executor not in work_item.executor_ids:
+            raise ValueError("executor is not active on this work item")
+        if step.status not in {"pending", "running"}:
+            raise ValueError(f"plan step cannot complete from {step.status}")
+        step.status = "completed"
+        self.store.save(
+            work_item,
+            event_kind="plan.step_completed",
+            payload={"step_id": step_id, "executor": executor},
         )
 
     def attach_result(
@@ -110,6 +163,15 @@ class TaskSealEngine:
         )
 
     def begin_verification(self, work_item: WorkItem) -> None:
+        incomplete = [
+            step.id
+            for step in work_item.plan
+            if step.status not in {"completed", "skipped"}
+        ]
+        if incomplete:
+            raise ValueError(f"plan has incomplete steps: {incomplete}")
+        if not work_item.artifacts or not work_item.evidence:
+            raise ValueError("verification requires artifacts and evidence")
         transition(work_item, WorkStatus.VERIFYING)
         self.store.save(work_item, event_kind="verification.started")
 
@@ -128,9 +190,6 @@ class TaskSealEngine:
             )
             raise
 
-        for step in work_item.plan:
-            if step.status == "pending":
-                step.status = "completed"
         transition(work_item, WorkStatus.ACCEPTED)
         work_item.next_action = None
         self.store.save(
