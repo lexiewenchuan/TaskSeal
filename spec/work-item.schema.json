@@ -2,21 +2,29 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://raw.githubusercontent.com/lexiewenchuan/TaskSeal/main/spec/work-item.schema.json",
   "title": "TaskSeal Work Item",
-  "description": "A runtime-neutral contract for durable, authorized, evidence-backed agent work.",
+  "description": "The canonical serialized contract emitted and consumed by the TaskSeal runtime.",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schema_version",
     "id",
     "goal",
-    "status",
-    "scope",
+    "requested_by",
+    "resources",
+    "acceptance",
     "risk",
+    "risk_reasons",
+    "prohibited_actions",
+    "status",
     "plan",
     "authorizations",
     "artifacts",
     "evidence",
-    "acceptance"
+    "executor_ids",
+    "next_action",
+    "revision",
+    "created_at",
+    "updated_at"
   ],
   "properties": {
     "schema_version": {
@@ -27,25 +35,39 @@
       "pattern": "^[a-z0-9][a-z0-9._-]{2,127}$"
     },
     "goal": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["summary", "requested_by"],
-      "properties": {
-        "summary": {
-          "type": "string",
-          "minLength": 1
-        },
-        "requested_by": {
-          "type": "string",
-          "minLength": 1
-        },
-        "constraints": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "default": []
-        }
+      "type": "string",
+      "minLength": 1
+    },
+    "requested_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/resource"
+      }
+    },
+    "acceptance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/criterion"
+      }
+    },
+    "risk": {
+      "enum": ["low", "medium", "high", "critical"]
+    },
+    "risk_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prohibited_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     },
     "status": {
@@ -62,64 +84,10 @@
         "cancelled"
       ]
     },
-    "scope": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["resources", "prohibited"],
-      "properties": {
-        "resources": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/resource"
-          }
-        },
-        "prohibited": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
-    "risk": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["level", "reasons"],
-      "properties": {
-        "level": {
-          "enum": ["low", "medium", "high", "critical"]
-        },
-        "reasons": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "plan": {
       "type": "array",
-      "minItems": 1,
       "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "summary", "status"],
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "summary": {
-            "type": "string",
-            "minLength": 1
-          },
-          "status": {
-            "enum": ["pending", "running", "completed", "failed", "skipped"]
-          },
-          "executor": {
-            "type": "string"
-          }
-        }
+        "$ref": "#/$defs/plan_step"
       }
     },
     "authorizations": {
@@ -140,30 +108,40 @@
         "$ref": "#/$defs/evidence"
       }
     },
-    "acceptance": {
+    "executor_ids": {
       "type": "array",
-      "minItems": 1,
       "items": {
-        "$ref": "#/$defs/criterion"
+        "type": "string",
+        "minLength": 1
       }
     },
     "next_action": {
       "type": ["string", "null"]
     },
-    "extensions": {
-      "type": "object",
-      "description": "Namespaced domain-specific data.",
-      "propertyNames": {
-        "pattern": "^[a-z0-9][a-z0-9.-]+$"
-      },
-      "additionalProperties": true
+    "revision": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
     }
   },
   "$defs": {
     "resource": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "kind", "locator", "access"],
+      "required": [
+        "id",
+        "kind",
+        "locator",
+        "allowed_actions",
+        "revision"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -177,18 +155,55 @@
           "type": "string",
           "minLength": 1
         },
-        "access": {
-          "enum": ["read", "write"]
+        "allowed_actions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         },
         "revision": {
-          "type": "string"
+          "type": ["string", "null"]
+        }
+      }
+    },
+    "plan_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "summary", "status", "executor"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": ["pending", "running", "completed", "failed", "skipped"]
+        },
+        "executor": {
+          "type": ["string", "null"]
         }
       }
     },
     "authorization": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "subject", "resource_ids", "actions", "status"],
+      "required": [
+        "id",
+        "subject",
+        "resource_ids",
+        "actions",
+        "conditions",
+        "expires_at",
+        "granted_by",
+        "status",
+        "parent_authorization_id",
+        "granted_at"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -214,23 +229,33 @@
         },
         "conditions": {
           "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "maxItems": 0,
+          "description": "Reserved for future executable policy conditions."
         },
         "expires_at": {
           "type": ["string", "null"],
           "format": "date-time"
         },
+        "granted_by": {
+          "type": "string",
+          "minLength": 1
+        },
         "status": {
-          "enum": ["requested", "granted", "denied", "expired", "revoked"]
+          "enum": ["granted", "expired", "revoked"]
+        },
+        "parent_authorization_id": {
+          "type": ["string", "null"]
+        },
+        "granted_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
     "artifact": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "kind", "uri"],
+      "required": ["id", "kind", "uri", "revision", "produced_by"],
       "properties": {
         "id": {
           "type": "string",
@@ -245,17 +270,28 @@
           "minLength": 1
         },
         "revision": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "produced_by": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         }
       }
     },
     "evidence": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "kind", "uri", "supports", "observed_at"],
+      "required": [
+        "id",
+        "kind",
+        "uri",
+        "supports",
+        "resource_revision",
+        "collected_by",
+        "observed_at",
+        "details"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -277,21 +313,33 @@
           }
         },
         "resource_revision": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
+        },
+        "collected_by": {
+          "type": "string",
+          "minLength": 1
         },
         "observed_at": {
           "type": "string",
           "format": "date-time"
         },
-        "collected_by": {
-          "type": "string"
+        "details": {
+          "type": "object"
         }
       }
     },
     "criterion": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "statement", "status", "evidence_ids"],
+      "required": [
+        "id",
+        "statement",
+        "required_evidence_kinds",
+        "evidence_ids",
+        "status",
+        "verified_by"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -301,8 +349,11 @@
           "type": "string",
           "minLength": 1
         },
-        "status": {
-          "enum": ["pending", "passed", "failed", "blocked"]
+        "required_evidence_kinds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "evidence_ids": {
           "type": "array",
@@ -310,8 +361,11 @@
             "type": "string"
           }
         },
+        "status": {
+          "enum": ["pending", "passed", "failed", "blocked"]
+        },
         "verified_by": {
-          "type": "string"
+          "type": ["string", "null"]
         }
       }
     }
